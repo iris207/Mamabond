@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'motherpost.dart';
 import 'package:mamabond/screens/healthcenterview.dart';
-import 'package:mamabond/screens/mothernotif.dart'; 
+import 'package:mamabond/screens/mothernotif.dart';
 import 'package:mamabond/screens/motherprofile.dart';
-
+import 'package:mamabond/screens/milkbank_locator.dart'; // ✅ IMPORT ADDED
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -50,8 +50,6 @@ class HomeScreen extends StatelessWidget {
                               const Color(0xFFE94E80),
                         ),
                       ),
-
-                      // ✅ CONNECTED NOTIFICATION ICON
                       InkWell(
                         onTap: () {
                           Navigator.push(
@@ -192,14 +190,21 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                       const SizedBox(
                                           width: 12),
+
+                                      // ✅ MILKBANK WITH NAVIGATION
                                       _smallAction(
-                                        icon: Icons
-                                            .home_work_rounded,
-                                        label:
-                                            'MilkBank',
-                                        bgColor:
-                                            const Color(
-                                                0xFFF59AB5),
+                                        icon: Icons.home_work_rounded,
+                                        label: 'MilkBank',
+                                        bgColor: const Color(0xFFF59AB5),
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const MilkbankLocator(),
+                                            ),
+                                          );
+                                        },
                                       ),
                                     ],
                                   ),
@@ -279,46 +284,46 @@ class HomeScreen extends StatelessWidget {
                                       const SizedBox(width: 12),
 
                                       Expanded(
-  child: InkWell(
-    borderRadius: BorderRadius.circular(24),
-    onTap: () {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) =>
-              const MotherProfileScreen(),
-        ),
-      );
-    },
-    child: Container(
-      height: 70,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF25A88),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: const [
-          Icon(
-            Icons.person,
-            size: 22,
-            color: Colors.white,
-          ),
-          SizedBox(height: 4),
-          Text(
-            'Profile',
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              fontSize: 10,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
-        ],
-      ),
-    ),
-  ),
-),
+                                        child: InkWell(
+                                          borderRadius: BorderRadius.circular(24),
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    const MotherProfileScreen(),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            height: 70,
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF25A88),
+                                              borderRadius: BorderRadius.circular(24),
+                                            ),
+                                            child: Column(
+                                              mainAxisAlignment: MainAxisAlignment.center,
+                                              children: const [
+                                                Icon(
+                                                  Icons.person,
+                                                  size: 22,
+                                                  color: Colors.white,
+                                                ),
+                                                SizedBox(height: 4),
+                                                Text(
+                                                  'Profile',
+                                                  textAlign: TextAlign.center,
+                                                  style: TextStyle(
+                                                    fontSize: 10,
+                                                    color: Colors.white,
+                                                    fontWeight: FontWeight.w600,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                                     ],
                                   ),
                                 ],
@@ -344,38 +349,43 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
+  // ✅ UPDATED SMALL ACTION (WITH onTap)
   static Widget _smallAction({
     required IconData icon,
     required String label,
     required Color bgColor,
+    VoidCallback? onTap,
   }) {
     return Expanded(
-      child: Container(
-        height: 70,
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius:
-              BorderRadius.circular(24),
-        ),
-        child: Column(
-          mainAxisAlignment:
-              MainAxisAlignment.center,
-          children: [
-            Icon(icon,
-                size: 22,
-                color: Colors.white),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontSize: 10,
-                color: Colors.white,
-                fontWeight:
-                    FontWeight.w600,
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          height: 70,
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius:
+                BorderRadius.circular(24),
+          ),
+          child: Column(
+            mainAxisAlignment:
+                MainAxisAlignment.center,
+            children: [
+              Icon(icon,
+                  size: 22,
+                  color: Colors.white),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 10,
+                  color: Colors.white,
+                  fontWeight:
+                      FontWeight.w600,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
