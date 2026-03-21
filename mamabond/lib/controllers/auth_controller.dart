@@ -32,6 +32,7 @@ class AuthController {
     required String address,
     required String barangay,
     required String city,
+    required String contactNumber,
   }) async {
     return await _authService.registerHealthCenter(
       centerName: centerName,
@@ -40,6 +41,7 @@ class AuthController {
       address: address,
       barangay: barangay,
       city: city,
+      contactNumber: contactNumber,
     );
   }
 

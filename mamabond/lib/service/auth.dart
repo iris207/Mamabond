@@ -67,6 +67,7 @@ class AuthService {
     required String address,
     required String barangay,
     required String city,
+    required String contactNumber,
   }) async {
     try {
       final response = await _supabase.auth.signUp(
@@ -90,6 +91,7 @@ class AuthService {
         'address': address,
         'barangay': barangay,
         'city': city,
+        'contact_number': contactNumber,  
       });
 
       return {

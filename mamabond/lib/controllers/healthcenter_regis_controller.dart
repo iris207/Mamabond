@@ -19,6 +19,7 @@ class HealthcenterRegisController {
       address: address,
       barangay: barangay,
       city: city,
+      contactNumber: contactNumber,
     );
 
     if (result['success'] == true) {
