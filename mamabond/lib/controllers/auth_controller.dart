@@ -9,14 +9,18 @@ class AuthController {
     required String email,
     required String password,
     required String fullName,
+    required String address,
     required String barangay,
+    required String city,
   }) async {
     return await _authService.registerMother(
       username: username,
       email: email,
       password: password,
       fullName: fullName,
+      address: address,
       barangay: barangay,
+      city: city,
     );
   }
 
@@ -27,6 +31,7 @@ class AuthController {
     required String password,
     required String address,
     required String barangay,
+    required String city,
   }) async {
     return await _authService.registerHealthCenter(
       centerName: centerName,
@@ -34,6 +39,7 @@ class AuthController {
       password: password,
       address: address,
       barangay: barangay,
+      city: city,
     );
   }
 

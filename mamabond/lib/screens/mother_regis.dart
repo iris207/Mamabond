@@ -1,3 +1,4 @@
+//mother_regis.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../controllers/mother_regis_controller.dart';
@@ -52,6 +53,7 @@ class _RegisterMotherScreenState extends State<RegisterMotherScreen> {
     });
 
     final error = await _controller.registerMother(
+      fullName: fullNameController.text.trim(),
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
       username: usernameController.text.trim(),

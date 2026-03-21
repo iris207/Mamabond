@@ -4,6 +4,7 @@ class RegisterController {
   final AuthController _authController = AuthController();
 
   Future<String?> registerMother({
+    required String fullName,
     required String email,
     required String password,
     required String username,
@@ -15,12 +16,14 @@ class RegisterController {
       username: username,
       email: email,
       password: password,
-      fullName: username, // You can change this later if needed
+      fullName: fullName,
+      address: address,
+      city: city,
       barangay: barangay,
     );
 
     if (result['success'] == true) {
-      return null; // success
+      return null;
     } else {
       return result['message'];
     }

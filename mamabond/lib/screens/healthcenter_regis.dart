@@ -1,4 +1,3 @@
-//healthcenter_regis.dart
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../controllers/healthcenter_regis_controller.dart';
@@ -15,7 +14,6 @@ class _RegisterHealthCenterScreenState
     extends State<RegisterHealthCenterScreen> {
   final HealthcenterRegisController _controller = HealthcenterRegisController();
 
-  // Text controllers
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
@@ -30,7 +28,6 @@ class _RegisterHealthCenterScreenState
   bool obscureConfirmPassword = true;
   bool passwordMismatch = false;
 
-  // ---------------- CITY & BARANGAY ----------------
   String? selectedCity;
   String? selectedBarangay;
 
@@ -45,7 +42,6 @@ class _RegisterHealthCenterScreenState
   List<String> get barangays =>
       selectedCity == null ? [] : mindanaoCities[selectedCity]!;
 
-  // ---------------- REGISTER ----------------
   Future<void> _registerHealthCenter() async {
     if (passwordController.text != confirmPasswordController.text) {
       setState(() => passwordMismatch = true);
@@ -61,6 +57,7 @@ class _RegisterHealthCenterScreenState
       email: emailController.text.trim(),
       password: passwordController.text.trim(),
       centerName: centerNameController.text.trim(),
+      address: addressController.text.trim(),
       city: selectedCity ?? '',
       barangay: selectedBarangay ?? '',
       contactNumber: contactNumberController.text.trim(),
@@ -79,18 +76,26 @@ class _RegisterHealthCenterScreenState
   }
 
   @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    confirmPasswordController.dispose();
+    centerNameController.dispose();
+    addressController.dispose();
+    contactNumberController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         fit: StackFit.expand,
         children: [
-          // ---------------- BACKGROUND ----------------
           Image.asset(
             'assets/background.png',
             fit: BoxFit.cover,
           ),
-
-          // ---------------- FORM ----------------
           Center(
             child: SingleChildScrollView(
               padding: const EdgeInsets.all(24),
@@ -110,14 +115,11 @@ class _RegisterHealthCenterScreenState
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // ---------------- LOGO ----------------
                         Image.asset(
                           'assets/logo.png',
                           height: 110,
                         ),
-
                         const SizedBox(height: 16),
-
                         const Text(
                           'HEALTH CENTER REGISTRATION',
                           textAlign: TextAlign.center,
@@ -127,9 +129,7 @@ class _RegisterHealthCenterScreenState
                             color: Color(0xFFE94E80),
                           ),
                         ),
-
                         const SizedBox(height: 24),
-
                         _dropdown(
                           hint: 'City',
                           value: selectedCity,
@@ -141,7 +141,6 @@ class _RegisterHealthCenterScreenState
                             });
                           },
                         ),
-
                         _dropdown(
                           hint: 'Barangay',
                           value: selectedBarangay,
@@ -152,34 +151,29 @@ class _RegisterHealthCenterScreenState
                             });
                           },
                         ),
-
-                        _field(
-                            'Health Center Name', centerNameController),
+                        _field('Health Center Name', centerNameController),
                         _field('Health Center Address', addressController),
-                        _field(
-                            'Contact Number', contactNumberController),
+                        _field('Contact Number', contactNumberController),
                         _field('Official Email', emailController),
-
                         _passwordField(
                           hint: 'Password',
                           controller: passwordController,
                           obscure: obscurePassword,
                           toggle: () => setState(
-                              () => obscurePassword = !obscurePassword),
+                            () => obscurePassword = !obscurePassword,
+                          ),
                         ),
-
                         _passwordField(
                           hint: 'Confirm Password',
                           controller: confirmPasswordController,
                           obscure: obscureConfirmPassword,
-                          toggle: () => setState(() =>
-                              obscureConfirmPassword =
-                                  !obscureConfirmPassword),
+                          toggle: () => setState(
+                            () => obscureConfirmPassword =
+                                !obscureConfirmPassword,
+                          ),
                           error: passwordMismatch,
                         ),
-
                         const SizedBox(height: 28),
-
                         isLoading
                             ? const Center(
                                 child: CircularProgressIndicator(),
@@ -187,13 +181,11 @@ class _RegisterHealthCenterScreenState
                             : ElevatedButton(
                                 onPressed: _registerHealthCenter,
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor:
-                                      const Color(0xFFE94E80),
-                                  padding: const EdgeInsets.symmetric(
-                                      vertical: 14),
+                                  backgroundColor: const Color(0xFFE94E80),
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 14),
                                   shape: RoundedRectangleBorder(
-                                    borderRadius:
-                                        BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(20),
                                   ),
                                 ),
                                 child: const Text(
@@ -215,8 +207,6 @@ class _RegisterHealthCenterScreenState
       ),
     );
   }
-
-  // ---------------- HELPERS ----------------
 
   Widget _field(String hint, TextEditingController controller) {
     return Padding(
@@ -254,8 +244,7 @@ class _RegisterHealthCenterScreenState
           fillColor: Colors.white.withOpacity(0.6),
           errorText: error ? 'Passwords do not match' : null,
           suffixIcon: IconButton(
-            icon:
-                Icon(obscure ? Icons.visibility_off : Icons.visibility),
+            icon: Icon(obscure ? Icons.visibility_off : Icons.visibility),
             onPressed: toggle,
           ),
           border: OutlineInputBorder(

@@ -1,12 +1,13 @@
 import 'auth_controller.dart';
 
-class HealthcenterRegisController{
+class HealthcenterRegisController {
   final AuthController _authController = AuthController();
 
   Future<String?> registerHealthCenter({
     required String email,
     required String password,
     required String centerName,
+    required String address,
     required String city,
     required String barangay,
     required String contactNumber,
@@ -15,8 +16,9 @@ class HealthcenterRegisController{
       centerName: centerName,
       email: email,
       password: password,
-      address: city, // adjust later if needed
+      address: address,
       barangay: barangay,
+      city: city,
     );
 
     if (result['success'] == true) {

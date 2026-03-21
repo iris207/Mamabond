@@ -1,7 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mamabond/screens/mother_home.dart';
 import '../screens/mother_regis.dart';
 import '../screens/healthcenter_regis.dart';

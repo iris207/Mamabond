@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CreatePostScreen extends StatelessWidget {
-  const CreatePostScreen({Key? key}) : super(key: key);
+  const CreatePostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +147,6 @@ class CreatePostScreen extends StatelessWidget {
                           onPressed: () {
                             Navigator.pop(context);
                           },
-                          child: const Text("POST"),
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE8DFD6),
                             foregroundColor: const Color(0xFFE94E80),
@@ -155,6 +154,7 @@ class CreatePostScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
+                          child: const Text("POST"),
                         ),
                       ],
                     ),
