@@ -188,7 +188,9 @@ class _MotherProfileScreenState extends State<MotherProfileScreen> {
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
-                                  username.trim().isEmpty ? username : username,
+                                  username.trim().isEmpty
+                                      ? 'No username'
+                                      : username,
                                   textAlign: TextAlign.center,
                                   style: const TextStyle(
                                     fontSize: 22,
@@ -197,6 +199,18 @@ class _MotherProfileScreenState extends State<MotherProfileScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 4),
+                                Text(
+                                  fullName.trim().isEmpty
+                                      ? 'No name available'
+                                      : fullName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFFE88AA5),
+                                  ),
+                                ),
+                                const SizedBox(height: 6),
                                 Text(
                                   fullAddress.isEmpty
                                       ? 'No address available'

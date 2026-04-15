@@ -1,3 +1,4 @@
+//mother_editprof_controller.dart
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -5,7 +6,8 @@ class MotherEditprofController {
   final SupabaseClient _client = Supabase.instance.client;
 
   final TextEditingController usernameController = TextEditingController();
-  final TextEditingController fullNameController = TextEditingController();
+  final TextEditingController firstNameController = TextEditingController();
+  final TextEditingController lastNameController = TextEditingController();
   final TextEditingController streetController = TextEditingController();
   final TextEditingController barangayController = TextEditingController();
   final TextEditingController cityController = TextEditingController();
@@ -20,6 +22,43 @@ class MotherEditprofController {
 
   String valueOrDefault(String value, String fallback) {
     return value.trim().isEmpty ? fallback : value.trim();
+  }
+
+  Map<String, String> splitFullName(String fullName) {
+    final cleanName = fullName.trim();
+
+    if (cleanName.isEmpty) {
+      return {
+        'first_name': '',
+        'last_name': '',
+      };
+    }
+
+    final parts = cleanName.split(RegExp(r'\s+'));
+
+    if (parts.length == 1) {
+      return {
+        'first_name': parts.first,
+        'last_name': '',
+      };
+    }
+
+    return {
+      'first_name': parts.first,
+      'last_name': parts.sublist(1).join(' '),
+    };
+  }
+
+  String buildFullName() {
+    final firstName = firstNameController.text.trim();
+    final lastName = lastNameController.text.trim();
+
+    final fullName = [firstName, lastName]
+        .where((part) => part.isNotEmpty)
+        .join(' ')
+        .trim();
+
+    return fullName.isEmpty ? 'Full name' : fullName;
   }
 
   Future<String?> loadMotherProfile() async {
@@ -47,8 +86,11 @@ class MotherEditprofController {
           .maybeSingle();
 
       if (profile != null) {
+        final fullNameParts = splitFullName(_safeText(profile['full_name']));
+
         usernameController.text = _safeText(profile['username']);
-        fullNameController.text = _safeText(profile['full_name']);
+        firstNameController.text = fullNameParts['first_name'] ?? '';
+        lastNameController.text = fullNameParts['last_name'] ?? '';
         streetController.text = _safeText(profile['address']);
         barangayController.text = _safeText(profile['barangay']);
         cityController.text = _safeText(profile['city']);
@@ -78,16 +120,20 @@ class MotherEditprofController {
 
       isSaving = true;
 
+      final fullName = buildFullName();
+
       print('CURRENT LOGGED IN AUTH ID: ${user.id}');
       print('username: ${usernameController.text}');
-      print('full name: ${fullNameController.text}');
+      print('first name: ${firstNameController.text}');
+      print('last name: ${lastNameController.text}');
+      print('full name: $fullName');
       print('address: ${streetController.text}');
 
       final updatedRows = await _client
           .from('mothers')
           .update({
             'username': valueOrDefault(usernameController.text, 'Username'),
-            'full_name': valueOrDefault(fullNameController.text, 'Full name'),
+            'full_name': fullName,
             'address': valueOrDefault(streetController.text, 'Address'),
           })
           .eq('auth_user_id', user.id)
@@ -112,9 +158,11 @@ class MotherEditprofController {
       }
 
       final updatedProfile = updatedRows.first;
+      final fullNameParts = splitFullName(_safeText(updatedProfile['full_name']));
 
       usernameController.text = _safeText(updatedProfile['username']);
-      fullNameController.text = _safeText(updatedProfile['full_name']);
+      firstNameController.text = fullNameParts['first_name'] ?? '';
+      lastNameController.text = fullNameParts['last_name'] ?? '';
       streetController.text = _safeText(updatedProfile['address']);
       barangayController.text = _safeText(updatedProfile['barangay']);
       cityController.text = _safeText(updatedProfile['city']);
@@ -155,7 +203,8 @@ class MotherEditprofController {
 
   void dispose() {
     usernameController.dispose();
-    fullNameController.dispose();
+    firstNameController.dispose();
+    lastNameController.dispose();
     streetController.dispose();
     barangayController.dispose();
     cityController.dispose();

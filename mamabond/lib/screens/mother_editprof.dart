@@ -183,8 +183,13 @@ class _MotherEditprofState extends State<MotherEditprof> {
                                 ),
                                 const SizedBox(height: 14),
                                 _buildField(
-                                  controller.fullNameController,
-                                  hint: "full name",
+                                  controller.firstNameController,
+                                  hint: "first name",
+                                ),
+                                const SizedBox(height: 14),
+                                _buildField(
+                                  controller.lastNameController,
+                                  hint: "last name",
                                 ),
                                 const SizedBox(height: 14),
                                 _buildField(
@@ -200,7 +205,7 @@ class _MotherEditprofState extends State<MotherEditprof> {
                                 const SizedBox(height: 14),
                                 _buildField(
                                   controller.cityController,
-                                  hint: "City",
+                                  hint: "city",
                                   readOnly: true,
                                 ),
                                 const SizedBox(height: 34),
