@@ -1,9 +1,45 @@
 //healthcenterpost.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mamabond/controllers/healthcenter_post_controller.dart';
 
-class HealthCenterCreatePostScreen extends StatelessWidget {
+class HealthCenterCreatePostScreen extends StatefulWidget {
   const HealthCenterCreatePostScreen({super.key});
+
+  @override
+  State<HealthCenterCreatePostScreen> createState() =>
+      _HealthCenterCreatePostScreenState();
+}
+
+class _HealthCenterCreatePostScreenState
+    extends State<HealthCenterCreatePostScreen> {
+  final HealthcenterPostController controller = HealthcenterPostController();
+
+  Future<void> _createPost() async {
+    setState(() {});
+
+    final result = await controller.createPost();
+
+    if (!mounted) return;
+
+    setState(() {});
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(result['message'] ?? 'Unknown message'),
+      ),
+    );
+
+    if (result['success'] == true) {
+      Navigator.pop(context, true);
+    }
+  }
+
+  @override
+  void dispose() {
+    controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -13,16 +49,12 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
         child: SingleChildScrollView(
           child: Column(
             children: [
-
-              // ================= TOP BAR =================
               Container(
-                height: 80, // increased height to prevent clipping
+                height: 80,
                 color: const Color(0xFFFFE3E8),
                 child: Stack(
                   alignment: Alignment.center,
                   children: [
-
-                    // 🍼 LEFT LOGO
                     Positioned(
                       left: 16,
                       child: Image.asset(
@@ -30,8 +62,6 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                         height: 42,
                       ),
                     ),
-
-                    // 💗 CENTERED TEXT
                     Center(
                       child: Text(
                         "MamaBond",
@@ -41,8 +71,6 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                         ),
                       ),
                     ),
-
-                    // 🔔 RIGHT NOTIFICATION
                     const Positioned(
                       right: 16,
                       child: Icon(
@@ -54,10 +82,7 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                   ],
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ================= TITLE =================
               const Text(
                 "Create a Post to share with Moms",
                 style: TextStyle(
@@ -66,10 +91,7 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                   color: Color(0xFFE94E80),
                 ),
               ),
-
               const SizedBox(height: 20),
-
-              // ================= MAIN CARD =================
               Container(
                 margin: const EdgeInsets.symmetric(horizontal: 20),
                 padding: const EdgeInsets.all(20),
@@ -80,59 +102,57 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-
-                    // Post Title
                     const Text(
                       "Post Title:",
                       style: TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 8),
-                    _buildInputField(),
-
+                    _buildInputField(
+                      controller: controller.titleController,
+                    ),
                     const SizedBox(height: 20),
-
-                    // Category
                     const Text(
                       "Category:",
                       style: TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 8),
-                    _buildInputField(),
-
+                    _buildInputField(
+                      controller: controller.categoryController,
+                    ),
                     const SizedBox(height: 20),
-
-                    // Description
                     const Text(
                       "Description:",
                       style: TextStyle(color: Colors.white),
                     ),
                     const SizedBox(height: 8),
-
                     Container(
                       height: 220,
                       decoration: BoxDecoration(
                         color: const Color(0xFFE8DFD6),
                         borderRadius: BorderRadius.circular(25),
                       ),
-                      child: const TextField(
+                      child: TextField(
+                        controller: controller.descriptionController,
                         maxLines: null,
                         expands: true,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           contentPadding: EdgeInsets.all(16),
                           border: InputBorder.none,
                         ),
                       ),
                     ),
-
                     const SizedBox(height: 30),
-
-                    // ================= BUTTONS =================
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-
                         ElevatedButton.icon(
-                          onPressed: () {},
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Photo upload not connected yet'),
+                              ),
+                            );
+                          },
                           icon: const Icon(Icons.upload),
                           label: const Text("UPLOAD"),
                           style: ElevatedButton.styleFrom(
@@ -143,11 +163,8 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                             ),
                           ),
                         ),
-
                         ElevatedButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
+                          onPressed: controller.isPosting ? null : _createPost,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFFE8DFD6),
                             foregroundColor: const Color(0xFFE94E80),
@@ -155,14 +172,15 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                             ),
                           ),
-                          child: const Text("POST"),
+                          child: Text(
+                            controller.isPosting ? "POSTING..." : "POST",
+                          ),
                         ),
                       ],
                     ),
                   ],
                 ),
               ),
-
               const SizedBox(height: 30),
             ],
           ),
@@ -171,14 +189,17 @@ class HealthCenterCreatePostScreen extends StatelessWidget {
     );
   }
 
-  static Widget _buildInputField() {
+  static Widget _buildInputField({
+    required TextEditingController controller,
+  }) {
     return Container(
       decoration: BoxDecoration(
         color: const Color(0xFFE8DFD6),
         borderRadius: BorderRadius.circular(30),
       ),
-      child: const TextField(
-        decoration: InputDecoration(
+      child: TextField(
+        controller: controller,
+        decoration: const InputDecoration(
           contentPadding: EdgeInsets.symmetric(horizontal: 20),
           border: InputBorder.none,
         ),

@@ -1,36 +1,83 @@
-//mother_home.dart
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mamabond/controllers/mother_home_posts_controller.dart';
 import 'motherpost.dart';
 import 'package:mamabond/screens/healthcenterview.dart';
 import 'package:mamabond/screens/mothernotif.dart';
 import 'package:mamabond/screens/motherprofile.dart';
 import 'package:mamabond/screens/milkbank_locator.dart';
-import 'package:mamabond/screens/bf_station_locator.dart'; // ✅ IMPORT ADDED
+import 'package:mamabond/screens/bf_station_locator.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final MotherHomePostsController controller = MotherHomePostsController();
+  final SupabaseClient _client = Supabase.instance.client;
+
+  String motherBarangay = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadScreenData();
+  }
+
+  Future<void> _loadScreenData() async {
+    await _loadMotherInfo();
+    final error = await controller.loadPostsForMother();
+
+    if (!mounted) return;
+
+    setState(() {});
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+    }
+  }
+
+  Future<void> _loadMotherInfo() async {
+    try {
+      final user = _client.auth.currentUser;
+
+      if (user == null) return;
+
+      final mother = await _client
+          .from('mothers')
+          .select('barangay')
+          .eq('auth_user_id', user.id)
+          .maybeSingle();
+
+      if (mother != null) {
+        motherBarangay = (mother['barangay'] ?? '').toString();
+      }
+    } catch (e) {
+      //
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFFFE9E6),
       body: Stack(
         children: [
-
-          // ✅ BACKGROUND IMAGE
           Positioned.fill(
             child: Image.asset(
               'assets/background.png',
               fit: BoxFit.cover,
             ),
           ),
-
           SafeArea(
             child: Column(
               children: [
-
-                // ================= TOP BAR =================
                 Container(
                   height: 70,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -65,14 +112,11 @@ class HomeScreen extends StatelessWidget {
                     ],
                   ),
                 ),
-
                 Expanded(
                   child: SingleChildScrollView(
                     padding: const EdgeInsets.all(16),
                     child: Column(
                       children: [
-
-                        // ================= SEARCH =================
                         Container(
                           height: 52,
                           padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -94,13 +138,9 @@ class HomeScreen extends StatelessWidget {
                             ],
                           ),
                         ),
-
                         const SizedBox(height: 24),
-
-                        // ================= QUICK ACTION SECTION =================
                         Row(
                           children: [
-
                             Expanded(
                               flex: 3,
                               child: GestureDetector(
@@ -122,8 +162,11 @@ class HomeScreen extends StatelessWidget {
                                   child: const Row(
                                     mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      Icon(Icons.add,
-                                          size: 26, color: Colors.white),
+                                      Icon(
+                                        Icons.add,
+                                        size: 26,
+                                        color: Colors.white,
+                                      ),
                                       SizedBox(width: 8),
                                       Text(
                                         'ADD NEW POST',
@@ -138,18 +181,13 @@ class HomeScreen extends StatelessWidget {
                                 ),
                               ),
                             ),
-
                             const SizedBox(width: 16),
-
                             Expanded(
                               flex: 2,
                               child: Column(
                                 children: [
-
                                   Row(
                                     children: [
-
-                                      // ✅ STATION BUTTON → FeedingStationLocator
                                       _smallAction(
                                         icon: Icons.pregnant_woman,
                                         label: 'Station',
@@ -164,10 +202,7 @@ class HomeScreen extends StatelessWidget {
                                           );
                                         },
                                       ),
-
                                       const SizedBox(width: 12),
-
-                                      // ✅ MILKBANK BUTTON → MilkbankLocator
                                       _smallAction(
                                         icon: Icons.home_work_rounded,
                                         label: 'MilkBank',
@@ -184,12 +219,9 @@ class HomeScreen extends StatelessWidget {
                                       ),
                                     ],
                                   ),
-
                                   const SizedBox(height: 12),
-
                                   Row(
                                     children: [
-
                                       Expanded(
                                         child: InkWell(
                                           borderRadius:
@@ -215,9 +247,11 @@ class HomeScreen extends StatelessWidget {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: const [
-                                                Icon(Icons.local_hospital,
-                                                    size: 22,
-                                                    color: Colors.white),
+                                                Icon(
+                                                  Icons.local_hospital,
+                                                  size: 22,
+                                                  color: Colors.white,
+                                                ),
                                                 SizedBox(height: 4),
                                                 Text(
                                                   'HealthCenter',
@@ -233,9 +267,7 @@ class HomeScreen extends StatelessWidget {
                                           ),
                                         ),
                                       ),
-
                                       const SizedBox(width: 12),
-
                                       Expanded(
                                         child: InkWell(
                                           borderRadius:
@@ -252,8 +284,7 @@ class HomeScreen extends StatelessWidget {
                                           child: Container(
                                             height: 70,
                                             decoration: BoxDecoration(
-                                              color:
-                                                  const Color(0xFFF25A88),
+                                              color: const Color(0xFFF25A88),
                                               borderRadius:
                                                   BorderRadius.circular(24),
                                             ),
@@ -261,9 +292,11 @@ class HomeScreen extends StatelessWidget {
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: const [
-                                                Icon(Icons.person,
-                                                    size: 22,
-                                                    color: Colors.white),
+                                                Icon(
+                                                  Icons.person,
+                                                  size: 22,
+                                                  color: Colors.white,
+                                                ),
                                                 SizedBox(height: 4),
                                                 Text(
                                                   'Profile',
@@ -286,12 +319,28 @@ class HomeScreen extends StatelessWidget {
                             ),
                           ],
                         ),
-
                         const SizedBox(height: 30),
-
-                        _glassPostCard(),
-                        const SizedBox(height: 18),
-                        _glassPostCard(),
+                        if (controller.isLoading)
+                          const Center(child: CircularProgressIndicator())
+                        else if (controller.posts.isEmpty)
+                          _emptyPostCard(motherBarangay: motherBarangay)
+                        else
+                          Column(
+                            children: controller.posts.map((post) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 18),
+                                child: _postCard(
+                                  title: (post['title'] ?? '').toString(),
+                                  category: (post['category'] ?? '').toString(),
+                                  description:
+                                      (post['description'] ?? '').toString(),
+                                  barangay: (post['barangay'] ?? '').toString(),
+                                  createdAt:
+                                      (post['created_at'] ?? '').toString(),
+                                ),
+                              );
+                            }).toList(),
+                          ),
                       ],
                     ),
                   ),
@@ -304,7 +353,6 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  // ✅ SMALL ACTION WIDGET (WITH onTap)
   static Widget _smallAction({
     required IconData icon,
     required String label,
@@ -341,22 +389,177 @@ class HomeScreen extends StatelessWidget {
     );
   }
 
-  static Widget _glassPostCard() {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(26),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          padding: const EdgeInsets.all(18),
-          decoration: BoxDecoration(
-            color: Colors.white.withOpacity(0.25),
-            borderRadius: BorderRadius.circular(26),
-            border: Border.all(
-              color: Colors.white.withOpacity(0.4),
+  static Widget _emptyPostCard({
+    required String motherBarangay,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3D3D8),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: const Color(0xFFB98B96),
+          width: 1.5,
+        ),
+      ),
+      child: Text(
+        motherBarangay.trim().isEmpty
+            ? 'No posts available'
+            : 'No posts available for $motherBarangay yet',
+        textAlign: TextAlign.center,
+        style: const TextStyle(
+          color: Color(0xFFE94E80),
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
+
+  static Widget _postCard({
+    required String title,
+    required String category,
+    required String description,
+    required String barangay,
+    required String createdAt,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF3D3D8),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(
+          color: const Color(0xFFB98B96),
+          width: 1.5,
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: const [
+              CircleAvatar(
+                radius: 20,
+                backgroundColor: Color(0xFFE85A8B),
+                child: Icon(
+                  Icons.person_outline,
+                  color: Colors.white,
+                  size: 24,
+                ),
+              ),
+              SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'HEALTH CENTER',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFE85A8B),
+                      ),
+                    ),
+                    Text(
+                      'Same barangay post',
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Color(0xFFE88AA5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 14),
+            decoration: BoxDecoration(
+              color: const Color(0xFFEFB0BC),
+              borderRadius: BorderRadius.circular(22),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '🍼 "$title"',
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                    color: Colors.black,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Category: $category',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFE85A8B),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Summary: $description',
+                  style: const TextStyle(
+                    fontSize: 13,
+                    color: Colors.black87,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  'Barangay: $barangay',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.black54,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Posted on: $createdAt',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: Colors.black54,
+                  ),
+                ),
+              ],
             ),
           ),
-          child: const Text("Glass Post"),
-        ),
+          const SizedBox(height: 14),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Text(
+                'Likes : 0',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE85A8B),
+                ),
+              ),
+              Text(
+                '|',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE85A8B),
+                ),
+              ),
+              Text(
+                'Comments: 0',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFE85A8B),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

@@ -1,5 +1,7 @@
+//healthcenter_prof.dart
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mamabond/controllers/healthcenter_post_controller.dart';
 import 'package:mamabond/screens/healthcenter_notif.dart';
 import 'package:mamabond/screens/healthcenter_editprof.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -14,6 +16,7 @@ class HealthCenterProfileScreen extends StatefulWidget {
 
 class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
   final SupabaseClient _client = Supabase.instance.client;
+  final HealthcenterPostController postController = HealthcenterPostController();
 
   bool isLoading = true;
 
@@ -27,12 +30,27 @@ class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
   @override
   void initState() {
     super.initState();
-    _loadHealthCenterProfile();
+    _loadAllData();
   }
 
   String _safeText(dynamic value) {
     if (value == null) return '';
     return value.toString();
+  }
+
+  Future<void> _loadAllData() async {
+    await _loadHealthCenterProfile();
+    final error = await postController.loadMyPosts();
+
+    if (!mounted) return;
+
+    setState(() {});
+
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error)),
+      );
+    }
   }
 
   Future<void> _loadHealthCenterProfile() async {
@@ -93,6 +111,12 @@ class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
         .where((part) => part.trim().isNotEmpty)
         .toList();
     return parts.join(', ');
+  }
+
+  @override
+  void dispose() {
+    postController.dispose();
+    super.dispose();
   }
 
   @override
@@ -237,7 +261,7 @@ class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
                                       );
 
                                       if (updated == true) {
-                                        await _loadHealthCenterProfile();
+                                        await _loadAllData();
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
@@ -280,15 +304,45 @@ class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
                             ),
                           ),
                           const SizedBox(height: 10),
-                          _HealthCenterPostCard(
-                            centerName: centerName,
-                            fullAddress: fullAddress,
-                          ),
-                          const SizedBox(height: 18),
-                          _HealthCenterPostCard(
-                            centerName: centerName,
-                            fullAddress: fullAddress,
-                          ),
+                          if (postController.isLoadingPosts)
+                            const Center(child: CircularProgressIndicator())
+                          else if (postController.posts.isEmpty)
+                            Container(
+                              margin: const EdgeInsets.symmetric(horizontal: 10),
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF4D0D7),
+                                borderRadius: BorderRadius.circular(24),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'No posts yet',
+                                  style: TextStyle(
+                                    color: Color(0xFFE85A8B),
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ),
+                            )
+                          else
+                            Column(
+                              children: postController.posts.map((post) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 18),
+                                  child: _HealthCenterPostCard(
+                                    centerName: centerName,
+                                    fullAddress: fullAddress,
+                                    title: (post['title'] ?? '').toString(),
+                                    category:
+                                        (post['category'] ?? '').toString(),
+                                    description:
+                                        (post['description'] ?? '').toString(),
+                                    createdAt:
+                                        (post['created_at'] ?? '').toString(),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
                         ],
                       ),
                     ),
@@ -303,10 +357,18 @@ class _HealthCenterProfileScreenState extends State<HealthCenterProfileScreen> {
 class _HealthCenterPostCard extends StatelessWidget {
   final String centerName;
   final String fullAddress;
+  final String title;
+  final String category;
+  final String description;
+  final String createdAt;
 
   const _HealthCenterPostCard({
     required this.centerName,
     required this.fullAddress,
+    required this.title,
+    required this.category,
+    required this.description,
+    required this.createdAt,
   });
 
   @override
@@ -387,36 +449,45 @@ class _HealthCenterPostCard extends StatelessWidget {
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: const [
+              children: [
                 Text(
-                  '🍼 “How to Store Breast Milk Properly”',
-                  style: TextStyle(
+                  '🍼 "$title"',
+                  style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 17,
                     color: Color(0xFFFFF2F5),
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 8),
                 Text(
-                  'Summary: “A quick guide on proper storage methods for expressed milk, including room temp, refrigeration, and freezing times.”',
-                  style: TextStyle(
+                  'Category: $category',
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFFFFF2F5),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  description,
+                  style: const TextStyle(
                     fontSize: 13,
                     color: Color(0xFFFFF2F5),
                     height: 1.25,
                   ),
                 ),
-                SizedBox(height: 10),
+                const SizedBox(height: 10),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      "Posted on: July 29, 2025",
-                      style: TextStyle(
+                      "Posted on: $createdAt",
+                      style: const TextStyle(
                         fontSize: 10,
                         color: Color(0xFFFCE2E8),
                       ),
                     ),
-                    Text(
+                    const Text(
                       "see more ...",
                       style: TextStyle(
                         fontSize: 10,
@@ -430,11 +501,11 @@ class _HealthCenterPostCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 12),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: const [
+              children: [
                 Text(
                   "👁 Views: 215",
                   style: TextStyle(
